@@ -1,51 +1,44 @@
 /**
  * Translation service
- *
- * This is a placeholder for the actual translation API integration.
- * Replace this with your actual API calls when ready.
+ * 
+ * Integration with the translation API at https://translater-gzbh.onrender.com
  */
 
-// Simulated translation function - replace with actual API call
+// Translation function using the actual API
 export async function translateText(text: string, targetLanguage: "Dagbani" | "English"): Promise<string> {
-  // This simulates API latency
-  await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000))
-
-  // Simple simulation of translation
-  if (targetLanguage === "English") {
-    // Simulate Dagbani to English
-    return `[Translated to English]: ${text}`
-  } else {
-    // Simulate English to Dagbani
-    return `[Translated to Dagbani]: ${text}`
-  }
-}
-
-// Example of how to integrate with a real translation API
-// Uncomment and modify this when ready to integrate with a real API
-/*
-export async function translateText(text: string, targetLanguage: 'Dagbani' | 'English'): Promise<string> {
   try {
-    const response = await fetch('/api/translate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        text,
-        targetLanguage,
-      }),
-    });
+    // Determine the language code based on the target language
+    // If target is English, source is Dagbani (dag)
+    // If target is Dagbani, source is English (en)
+    const languageCode = targetLanguage === "English" ? "dag" : "en"
+    
+    // Encode the text for URL
+    const encodedText = encodeURIComponent(text)
+    
+    // Make the API call
+    const response = await fetch(
+      `https://translater-gzbh.onrender.com/language?sentence=${encodedText}&language=${languageCode}`,
+      {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json'
+        }
+      }
+    )
 
     if (!response.ok) {
-      throw new Error('Translation failed');
+      throw new Error(`Translation failed with status: ${response.status}`)
     }
 
-    const data = await response.json();
-    return data.translatedText;
+    const data = await response.json()
+    
+    if (data.status !== "success") {
+      throw new Error('Translation failed: API returned non-success status')
+    }
+    
+    return data.translated_sentence
   } catch (error) {
-    console.error('Translation error:', error);
-    throw error;
+    console.error('Translation error:', error)
+    throw error
   }
 }
-*/
-
